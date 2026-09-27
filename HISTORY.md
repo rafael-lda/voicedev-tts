@@ -1,0 +1,15 @@
+# Histórico do Projeto VoiceDev
+
+## [v1.0.0] - 2026-09-27
+### Adicionado
+- Integração de Text-to-Speech (TTS) com motor `edge-tts`.
+- Reprodução de áudio assíncrona utilizando `pygame`.
+- Limpeza rigorosa de Markdown com `MarkdownCleaner` (suporte a remoção de formatações, links, blocos de código e emojis) para síntese natural da fala.
+- Otimização de latência: Divisão de texto em sentenças lógicas (`SentenceSplitter`) para envio via streaming/chunks.
+- Interface gráfica (GUI) flutuante com `tkinter` posicionada no canto inferior direito para acesso rápido sem prender o terminal.
+- Script `.bat` de inicialização direta para facilitar a abertura do painel de voz via duplo-clique.
+- Arquitetura limpa fortemente baseada em interfaces (`src/contracts`) e injeção de dependência.
+
+### Adiado (Em Espera)
+- Funcionalidade STT (Speech-to-Text) com `faster-whisper`. A infraestrutura básica (`WhisperSTTEngine` e `ClipboardInjector`) existe, mas o recurso está em pausa para focar na estabilidade do TTS via GUI.
+- Atalhos globais (`hotkeys` via `pynput` / API do Windows), desativados em prol da interface gráfica flutuante.
