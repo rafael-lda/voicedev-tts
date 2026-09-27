@@ -48,11 +48,23 @@ class PygameAudioPlayer(IAudioPlayer):
             pygame.mixer.music.stop()
             logger.debug("Reprodução de áudio parada.")
 
+    def pause(self) -> None:
+        """Pausa a reprodução atual."""
+        if pygame.mixer.get_init():
+            pygame.mixer.music.pause()
+            logger.debug("Áudio pausado.")
+
+    def unpause(self) -> None:
+        """Retoma a reprodução pausada."""
+        if pygame.mixer.get_init():
+            pygame.mixer.music.unpause()
+            logger.debug("Áudio retomado.")
+
     def is_playing(self) -> bool:
         """
-        Verifica se há áudio sendo reproduzido.
+        Verifica se há áudio sendo reproduzido ou pausado na fila.
 
-        :return: True se estiver reproduzindo, False caso contrário.
+        :return: True se estiver reproduzindo (ou pausado), False caso contrário.
         """
         if pygame.mixer.get_init():
             return pygame.mixer.music.get_busy()

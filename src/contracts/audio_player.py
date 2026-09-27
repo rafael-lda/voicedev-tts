@@ -14,6 +14,16 @@ class IAudioPlayer(ABC):
         ...
 
     @abstractmethod
+    def pause(self) -> None:
+        """Pausa a reprodução atual."""
+        ...
+
+    @abstractmethod
+    def unpause(self) -> None:
+        """Retoma a reprodução pausada."""
+        ...
+
+    @abstractmethod
     def is_playing(self) -> bool:
         """Retorna True se há áudio sendo reproduzido."""
         ...

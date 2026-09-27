@@ -6,8 +6,10 @@
 - Reprodução de áudio assíncrona utilizando `pygame`.
 - Limpeza rigorosa de Markdown com `MarkdownCleaner` (suporte a remoção de formatações, links, blocos de código e emojis) para síntese natural da fala.
 - Otimização de latência: Divisão de texto em sentenças lógicas (`SentenceSplitter`) para envio via streaming/chunks.
-- Interface gráfica (GUI) flutuante com `tkinter` posicionada no canto inferior direito para acesso rápido sem prender o terminal.
-- Script `.bat` de inicialização direta para facilitar a abertura do painel de voz via duplo-clique.
+- Interface gráfica (GUI) minimalista, sem bordas (`borderless`), arrastável e com botões compactos.
+- Atalhos globais com `keyboard`: `Alt+C` (Ler/Parar) e `Alt+P` (Pausar/Retomar), para operar o TTS mesmo fora da janela.
+- Controle avançado de player: Implementação de pausa/retomada no `pygame` e nos contratos (`IAudioPlayer`).
+- Script `.bat` de inicialização rodando de forma silenciosa via `pythonw.exe` para ocultar o terminal preto.
 - Arquitetura limpa fortemente baseada em interfaces (`src/contracts`) e injeção de dependência.
 
 ### Adiado (Em Espera)

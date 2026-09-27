@@ -11,7 +11,7 @@ O sistema é projetado seguindo princípios SOLID, utilizando Alta Coesão e Bai
 ### 2.1 Camada de Contratos (Interfaces / `src/contracts`)
 Define a API de comunicação do sistema usando classes abstratas (`ABC`):
 - `ISpeechSynthesizer`: Contrato para conversão de texto em áudio.
-- `IAudioPlayer`: Contrato para reprodução e interrupção de mídia.
+- `IAudioPlayer`: Contrato para reprodução, interrupção, pausa e retomada de mídia.
 - `ISpeechRecognizer`: Contrato para conversão de áudio em texto (STT).
 - `IAudioRecorder`: Contrato para captura de microfone.
 - `ITextInjector`: Contrato para colar texto no sistema do usuário.
@@ -19,12 +19,14 @@ Define a API de comunicação do sistema usando classes abstratas (`ABC`):
 ### 2.2 Camada de Engines (Concretas / `src/engines`)
 As implementações dos contratos acima:
 - `EdgeTTSEngine`: Usa `edge-tts` (motor Microsoft Neural gratuito).
-- `PygameAudioPlayer`: Usa o mixer do `pygame` (24000 Hz) para stream em RAM.
+- `PygameAudioPlayer`: Usa o mixer do `pygame` (24000 Hz) para stream em RAM, suportando métodos `.pause()` e `.unpause()`.
 - `MarkdownCleaner`: Componente vital que sanifica textos LLM descartando código inline, blocos de código e emojis antes de passar para o Sintetizador.
 - *Adiados*: `WhisperSTTEngine` (faster-whisper), `MicrophoneRecorder` (pyaudio), `ClipboardInjector`.
 
 ### 2.3 Camada de Apresentação (UI / `src/voice_panel.py`)
 A interface gráfica é responsável por orquestrar a limpeza e a execução do áudio.
+- **Minimalista e Borderless**: A janela usa `overrideredirect(True)` para se comportar como um pequeno widget (semelhante ao Windows Dictation), que pode ser arrastado pelo usuário.
+- **Atalhos Globais (`keyboard`)**: `Alt+C` para Ler/Parar e `Alt+P` para Pausar/Retomar.
 - `SentenceSplitter`: Para evitar o lag do TTS em blocos gigantes de texto, divide por pontuação para tocar sequencialmente.
 - O painel opera de forma assíncrona usando `asyncio` atrelado a uma thread daemon rodando as chamadas do motor.
 
