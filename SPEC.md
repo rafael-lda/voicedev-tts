@@ -25,7 +25,9 @@ As implementações dos contratos acima:
 
 ### 2.3 Camada de Apresentação (UI / `src/voice_panel.py`)
 A interface gráfica é responsável por orquestrar a limpeza e a execução do áudio.
-- **Minimalista e Borderless**: A janela usa `overrideredirect(True)` para se comportar como um pequeno widget (semelhante ao Windows Dictation), que pode ser arrastado pelo usuário.
+- **Minimalista e Borderless**: A janela usa `overrideredirect(True)` e é uma barra fina de uma linha (400x34, espessura próxima à da barra de tarefas) com `Ler`, `Pausa`, `Parar`, status, botão minimizar (—) e fechar (✕). Sem título; arrasta-se pelo texto de status.
+- **Minimizar**: recolhe a barra para um pequeno botão `🔊 ▲` (restaura ao clicar); os atalhos globais continuam ativos.
+- **Sempre visível**: nasce acima da barra de tarefas (área útil via `SPI_GETWORKAREA`) e reafirma `topmost` + `lift()` a cada 1 s para não ficar atrás dela.
 - **Atalhos Globais (`keyboard`)**: `Alt+C` para Ler/Parar e `Alt+P` para Pausar/Retomar.
 - `SentenceSplitter`: Para evitar o lag do TTS em blocos gigantes de texto, divide por pontuação para tocar sequencialmente.
 - O painel opera de forma assíncrona usando `asyncio` atrelado a uma thread daemon rodando as chamadas do motor.

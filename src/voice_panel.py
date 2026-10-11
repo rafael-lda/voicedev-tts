@@ -81,69 +81,111 @@ class VoicePanel:
         self._build_ui()
         self._setup_hotkeys()
 
+    _FULL_SIZE = (400, 34)
+    _MINI_SIZE = (64, 22)
+
     def _build_ui(self) -> None:
         root = self._root
         root.title("VoiceDev")
         root.configure(bg=self._BG)
         root.attributes("-topmost", True)
         root.overrideredirect(True) # Remove as bordas nativas da janela
-        
-        w, h = 230, 65
+
+        w, h = self._FULL_SIZE
         x = root.winfo_screenwidth() - w - 20
-        y = root.winfo_screenheight() - h - 60
+        y = self._work_area_bottom() - h - 4
         root.geometry(f"{w}x{h}+{x}+{y}")
 
-        main_frame = tk.Frame(root, bg=self._BG, highlightbackground="#45475a", highlightthickness=1)
-        main_frame.pack(fill=tk.BOTH, expand=True)
+        # Barra completa: botoes + status + minimizar/fechar, tudo em uma linha
+        self._full_frame = tk.Frame(root, bg=self._BG, highlightbackground="#45475a", highlightthickness=1)
+        self._full_frame.pack(fill=tk.BOTH, expand=True)
+        bar = self._full_frame
 
-        # Botão de fechar (x) minúsculo no canto
-        close_btn = tk.Label(main_frame, text="✕", bg=self._BG, fg="#f38ba8", font=("Segoe UI", 9, "bold"), cursor="hand2")
-        close_btn.place(x=210, y=2)
+        btn_style = dict(font=("Segoe UI", 8, "bold"), relief=tk.FLAT, cursor="hand2", width=7, pady=0, bd=0)
+
+        self._btn_clip = tk.Button(bar, text="▶ Ler", bg=self._BTN_CLIP, fg="#1e1e2e", command=self._on_clipboard, **btn_style)
+        self._btn_clip.pack(side=tk.LEFT, padx=(6, 3), pady=5, fill=tk.Y)
+
+        self._btn_pause = tk.Button(bar, text="⏸ Pausa", bg=self._BTN_PAUSE, fg="#1e1e2e", command=self._toggle_pause, **btn_style)
+        self._btn_pause.pack(side=tk.LEFT, padx=3, pady=5, fill=tk.Y)
+
+        self._btn_stop = tk.Button(bar, text="⏹ Parar", bg=self._BTN_STOP, fg="#1e1e2e", command=self._on_stop, **btn_style)
+        self._btn_stop.pack(side=tk.LEFT, padx=3, pady=5, fill=tk.Y)
+
+        close_btn = tk.Label(bar, text="✕", bg=self._BG, fg="#f38ba8", font=("Segoe UI", 10, "bold"), cursor="hand2", padx=6)
+        close_btn.pack(side=tk.RIGHT)
         close_btn.bind("<Button-1>", lambda e: self._on_close())
 
-        # Area para arrastar (Drag and Drop)
-        drag_area = tk.Label(main_frame, text="  VoiceDev (Alt+C para ler)  ", bg="#313244", fg="#cdd6f4", font=("Segoe UI", 8), cursor="fleur")
-        drag_area.place(x=1, y=1, width=205, height=18)
-        
-        def start_move(event):
-            self.x = event.x
-            self.y = event.y
-        def stop_move(event):
-            self.x = None
-            self.y = None
-        def do_move(event):
-            deltax = event.x - self.x
-            deltay = event.y - self.y
-            new_x = root.winfo_x() + deltax
-            new_y = root.winfo_y() + deltay
-            root.geometry(f"+{new_x}+{new_y}")
+        min_btn = tk.Label(bar, text="—", bg=self._BG, fg=self._FG, font=("Segoe UI", 10, "bold"), cursor="hand2", padx=6)
+        min_btn.pack(side=tk.RIGHT)
+        min_btn.bind("<Button-1>", lambda e: self._minimize())
 
-        drag_area.bind("<ButtonPress-1>", start_move)
-        drag_area.bind("<ButtonRelease-1>", stop_move)
-        drag_area.bind("<B1-Motion>", do_move)
-
-        # Status
+        # Status ocupa o espaco restante e tambem serve de area para arrastar
         self._status_label = tk.Label(
-            main_frame, text="Pronto", font=("Segoe UI", 8),
-            bg=self._BG, fg=self._STATUS_COLORS["idle"],
-            wraplength=200
+            bar, text="Pronto", font=("Segoe UI", 8), anchor="w",
+            bg=self._BG, fg=self._STATUS_COLORS["idle"], cursor="fleur", padx=6
         )
-        self._status_label.place(x=10, y=20)
+        self._status_label.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        # Botões
-        btn_frame = tk.Frame(main_frame, bg=self._BG)
-        btn_frame.place(x=10, y=40)
+        # Barra minimizada: apenas um botao pequeno para restaurar
+        self._mini_frame = tk.Frame(root, bg=self._BG, highlightbackground="#45475a", highlightthickness=1)
+        self._mini_label = tk.Label(
+            self._mini_frame, text="🔊 ▲", bg=self._BG, fg=self._FG,
+            font=("Segoe UI", 8, "bold"), cursor="hand2"
+        )
+        self._mini_label.pack(fill=tk.BOTH, expand=True)
+        self._mini_label.bind("<Button-1>", lambda e: self._restore())
 
-        btn_style = dict(font=("Segoe UI", 8, "bold"), relief=tk.FLAT, cursor="hand2", width=7, height=1)
+        for draggable in (self._status_label, self._mini_label):
+            draggable.bind("<ButtonPress-1>", self._start_move, add="+")
+            draggable.bind("<B1-Motion>", self._do_move)
 
-        self._btn_clip = tk.Button(btn_frame, text="▶ Ler", bg=self._BTN_CLIP, fg="#1e1e2e", command=self._on_clipboard, **btn_style)
-        self._btn_clip.pack(side=tk.LEFT, padx=(0, 5))
+        # Mantem o painel acima da barra de tarefas do Windows
+        self._keep_on_top()
 
-        self._btn_pause = tk.Button(btn_frame, text="⏸ Pausa", bg=self._BTN_PAUSE, fg="#1e1e2e", command=self._toggle_pause, **btn_style)
-        self._btn_pause.pack(side=tk.LEFT, padx=5)
+    def _work_area_bottom(self) -> int:
+        """Retorna a borda inferior da area util (acima da barra de tarefas)."""
+        try:
+            import ctypes
+            from ctypes import wintypes
+            rect = wintypes.RECT()
+            ctypes.windll.user32.SystemParametersInfoW(0x0030, 0, ctypes.byref(rect), 0)  # SPI_GETWORKAREA
+            return rect.bottom
+        except Exception:
+            return self._root.winfo_screenheight() - 48
 
-        self._btn_stop = tk.Button(btn_frame, text="⏹ Parar", bg=self._BTN_STOP, fg="#1e1e2e", command=self._on_stop, **btn_style)
-        self._btn_stop.pack(side=tk.LEFT, padx=5)
+    def _keep_on_top(self) -> None:
+        self._root.attributes("-topmost", True)
+        self._root.lift()
+        self._root.after(1000, self._keep_on_top)
+
+    def _start_move(self, event) -> None:
+        self._drag_x, self._drag_y = event.x_root, event.y_root
+        self._drag_moved = False
+
+    def _do_move(self, event) -> None:
+        dx, dy = event.x_root - self._drag_x, event.y_root - self._drag_y
+        self._drag_x, self._drag_y = event.x_root, event.y_root
+        self._drag_moved = True
+        self._root.geometry(f"+{self._root.winfo_x() + dx}+{self._root.winfo_y() + dy}")
+
+    def _minimize(self) -> None:
+        """Recolhe o painel para um botao pequeno (atalhos continuam ativos)."""
+        right, bottom = self._root.winfo_x() + self._root.winfo_width(), self._root.winfo_y() + self._root.winfo_height()
+        w, h = self._MINI_SIZE
+        self._full_frame.pack_forget()
+        self._mini_frame.pack(fill=tk.BOTH, expand=True)
+        self._root.geometry(f"{w}x{h}+{right - w}+{bottom - h}")
+
+    def _restore(self) -> None:
+        if getattr(self, "_drag_moved", False):
+            self._drag_moved = False
+            return
+        right, bottom = self._root.winfo_x() + self._root.winfo_width(), self._root.winfo_y() + self._root.winfo_height()
+        w, h = self._FULL_SIZE
+        self._mini_frame.pack_forget()
+        self._full_frame.pack(fill=tk.BOTH, expand=True)
+        self._root.geometry(f"{w}x{h}+{right - w}+{bottom - h}")
 
     def _setup_hotkeys(self):
         try:
@@ -177,7 +219,7 @@ class VoicePanel:
         else:
             self._player.pause()
             self._paused = True
-            self._set_status("Pausado (Alt+P para retomar)", "paused")
+            self._set_status("Pausado", "paused")
 
     def _on_clipboard(self) -> None:
         raw_text = pyperclip.paste()

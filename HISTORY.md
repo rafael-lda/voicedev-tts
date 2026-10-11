@@ -2,6 +2,7 @@
 
 ## [Não lançado] - 2026-10-11
 ### Adicionado
+- Painel redesenhado como barra fina de uma linha, sem título; botão de minimizar (recolhe para um mini botão); reafirmação periódica de `topmost` para não ir para trás da barra de tarefas.
 - `README.md` didático com instalação, uso, configuração e solução de problemas.
 - `iniciar.bat` na raiz do projeto: abre o painel via `pythonw.exe`, sem console.
 

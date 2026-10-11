@@ -41,8 +41,9 @@ Dê dois cliques em **`iniciar.bat`**. Ele abre só o painel flutuante, sem jane
 | Ler o texto copiado / parar a leitura | **Ler** / **Parar** | `Alt+C` |
 | Pausar / retomar | **Pausa** | `Alt+P` |
 
-- O painel mostra o estado: *Pronto*, *Lendo…* etc.
-- Arraste o painel com o mouse para onde quiser na tela.
+- O painel é uma barra fina e mostra o estado (*Pronto*, *Falando 2/7…*, *Pausado*).
+- Arraste pelo texto de status para mover.
+- **—** minimiza para um botão pequeno `🔊 ▲` (clique nele para voltar). Os atalhos continuam funcionando minimizado.
 - Para **fechar** o programa, clique no **X** do painel.
 
 ## Configuração (opcional)
