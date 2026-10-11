@@ -1,5 +1,10 @@
 # Histórico do Projeto VoiceDev
 
+## [Não lançado] - 2026-10-11
+### Adicionado
+- `README.md` didático com instalação, uso, configuração e solução de problemas.
+- `iniciar.bat` na raiz do projeto: abre o painel via `pythonw.exe`, sem console.
+
 ## [v1.0.0] - 2026-09-27
 ### Adicionado
 - Integração de Text-to-Speech (TTS) com motor `edge-tts`.
