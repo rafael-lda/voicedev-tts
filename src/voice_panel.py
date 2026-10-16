@@ -53,8 +53,10 @@ class VoicePanel:
         "idle": "#a6adc8",
         "synthesizing": "#89b4fa",
         "playing": "#a6e3a1",
-        "paused": "#f9e2af"
+        "paused": "#f9e2af",
+        "error": "#f38ba8"
     }
+    _ACTIVE_STATES = ("playing", "synthesizing", "paused")
 
     def __init__(self) -> None:
         load_dotenv()
@@ -202,14 +204,14 @@ class VoicePanel:
 
     def _toggle_read(self):
         """Inicia a leitura ou para se já estiver lendo."""
-        if self._player.is_playing() or self._status in ["playing", "synthesizing", "paused"]:
+        if self._player.is_playing() or self._status in self._ACTIVE_STATES:
             self._on_stop()
         else:
             self._on_clipboard()
 
     def _toggle_pause(self):
         """Pausa ou retoma a leitura."""
-        if self._status == "idle" and not self._player.is_playing():
+        if self._status not in self._ACTIVE_STATES and not self._player.is_playing():
             return
             
         if self._paused:
@@ -240,6 +242,7 @@ class VoicePanel:
     async def _speak_streaming(self, text: str) -> None:
         sentences = self._splitter.split(text)
         total = len(sentences)
+        failed = 0
 
         for i, sentence in enumerate(sentences, 1):
             if self._stop_requested:
@@ -258,10 +261,15 @@ class VoicePanel:
                     await asyncio.sleep(0.1)
 
             except Exception as e:
+                failed += 1
                 logger.error(f"Erro no trecho {i}: {e}")
 
         if not self._stop_requested:
-            self._set_status("Pronto", "idle")
+            # Sem isso a falha fica invisivel: no pythonw o log nao aparece em lugar nenhum
+            if failed:
+                self._set_status(f"Erro na voz ({failed}/{total} trechos)", "error")
+            else:
+                self._set_status("Pronto", "idle")
             self._paused = False
         
         self._root.after(0, lambda: self._btn_clip.config(state=tk.NORMAL))

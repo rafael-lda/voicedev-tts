@@ -18,7 +18,7 @@ Define a API de comunicação do sistema usando classes abstratas (`ABC`):
 
 ### 2.2 Camada de Engines (Concretas / `src/engines`)
 As implementações dos contratos acima:
-- `EdgeTTSEngine`: Usa `edge-tts` (motor Microsoft Neural gratuito).
+- `EdgeTTSEngine`: Usa `edge-tts` (motor Microsoft Neural gratuito). Exige `edge-tts>=7.3.1`: versões antigas enviam um `Sec-MS-GEC-Version` que o servidor da Microsoft passou a recusar com HTTP 403.
 - `PygameAudioPlayer`: Usa o mixer do `pygame` (24000 Hz) para stream em RAM, suportando métodos `.pause()` e `.unpause()`.
 - `MarkdownCleaner`: Componente vital que sanifica textos LLM descartando código inline, blocos de código e emojis antes de passar para o Sintetizador.
 - *Adiados*: `WhisperSTTEngine` (faster-whisper), `MicrophoneRecorder` (pyaudio), `ClipboardInjector`.
@@ -38,3 +38,4 @@ A interface gráfica é responsável por orquestrar a limpeza e a execução do 
 3. A string passa pelo `MarkdownCleaner`.
 4. O `SentenceSplitter` fatia a string limpa em uma lista de sentenças curtas.
 5. Em loop: Uma sentença é sintetizada no `EdgeTTSEngine` e imediatamente repassada ao `PygameAudioPlayer`. Caso o usuário clique em "Parar", o loop quebra e a flag aborta a próxima síntese.
+6. Ao fim do loop, se algum trecho falhou na síntese ou reprodução, o status exibe `Erro na voz (N/T trechos)` em vermelho em vez de `Pronto`. O estado `error` é tratado como ocioso (Alt+C inicia nova leitura, Alt+P é ignorado).

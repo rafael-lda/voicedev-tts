@@ -64,6 +64,7 @@ Para ver todas as vozes disponíveis: `.\venv\Scripts\edge-tts --list-voices`
 |---|---|
 | Clico em abrir e nada aparece | O `iniciar.bat` esconde os erros. Rode `.\venv\Scripts\python -m src.voice_panel` no terminal para ver a mensagem. |
 | Não sai som | Verifique a internet e o dispositivo de saída de áudio do Windows. |
+| Aparece `Erro na voz` | A Microsoft costuma bloquear versões antigas do `edge-tts`. Atualize: `.\venv\Scripts\python -m pip install --upgrade edge-tts`. |
 | `Alt+C` não responde | Outro programa pode estar usando o mesmo atalho. Use os botões do painel. |
 | Nada é lido | Confirme que copiou texto (`Ctrl+C`) antes de clicar em **Ler**. |
 

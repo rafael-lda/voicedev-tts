@@ -1,5 +1,10 @@
 # Histórico do Projeto VoiceDev
 
+## [Não lançado] - 2026-10-16
+### Corrigido
+- Leitura não produzia som: o servidor da Microsoft passou a recusar o `edge-tts` 7.2.8 com HTTP 403. Atualizado para 7.3.1 e mínimo do `requirements.txt` elevado para `edge-tts>=7.3.1`.
+- Falha silenciosa: quando a síntese falhava, o painel mostrava "Falando..." e depois "Pronto". Agora exibe `Erro na voz (N/T trechos)` em vermelho.
+
 ## [Não lançado] - 2026-10-11
 ### Adicionado
 - Painel redesenhado como barra fina de uma linha, sem título; botão de minimizar (recolhe para um mini botão); reafirmação periódica de `topmost` para não ir para trás da barra de tarefas.
